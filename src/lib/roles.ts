@@ -1,4 +1,7 @@
+import type { LinkProps } from "@tanstack/react-router";
 import type { Role } from "./types";
+
+export type AppPath = NonNullable<LinkProps["to"]>;
 
 export const ROLE_LABELS: Record<Role, string> = {
   super_admin: "Super Admin",
@@ -25,7 +28,7 @@ const R = {
 };
 
 export interface NavItem {
-  to: string;
+  to: AppPath;
   label: string;
   icon: string; // lucide icon name, resolved in the sidebar
   roles: Role[];
