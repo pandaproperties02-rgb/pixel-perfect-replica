@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ConsoleRouteRouteImport } from './routes/_console/route'
+import { Route as ConsoleIndexRouteImport } from './routes/_console/index'
 import { Route as ApiPublicMpesaCallbackRouteImport } from './routes/api/public/mpesa/callback'
 
 const ConsoleRouteRoute = ConsoleRouteRouteImport.update({
   id: '/_console',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ConsoleIndexRoute = ConsoleIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ConsoleRouteRoute,
 } as any)
 const ApiPublicMpesaCallbackRoute = ApiPublicMpesaCallbackRouteImport.update({
   id: '/api/public/mpesa/callback',
@@ -23,16 +29,17 @@ const ApiPublicMpesaCallbackRoute = ApiPublicMpesaCallbackRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof ConsoleRouteRoute
+  '/': typeof ConsoleIndexRoute
   '/api/public/mpesa/callback': typeof ApiPublicMpesaCallbackRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof ConsoleRouteRoute
+  '/': typeof ConsoleIndexRoute
   '/api/public/mpesa/callback': typeof ApiPublicMpesaCallbackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_console': typeof ConsoleRouteRoute
+  '/_console': typeof ConsoleRouteRouteWithChildren
+  '/_console/': typeof ConsoleIndexRoute
   '/api/public/mpesa/callback': typeof ApiPublicMpesaCallbackRoute
 }
 export interface FileRouteTypes {
@@ -40,11 +47,11 @@ export interface FileRouteTypes {
   fullPaths: '/' | '/api/public/mpesa/callback'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/api/public/mpesa/callback'
-  id: '__root__' | '/_console' | '/api/public/mpesa/callback'
+  id: '__root__' | '/_console' | '/_console/' | '/api/public/mpesa/callback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  ConsoleRouteRoute: typeof ConsoleRouteRoute
+  ConsoleRouteRoute: typeof ConsoleRouteRouteWithChildren
   ApiPublicMpesaCallbackRoute: typeof ApiPublicMpesaCallbackRoute
 }
 
@@ -57,6 +64,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_console/': {
+      id: '/_console/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof ConsoleIndexRouteImport
+      parentRoute: typeof ConsoleRouteRoute
+    }
     '/api/public/mpesa/callback': {
       id: '/api/public/mpesa/callback'
       path: '/api/public/mpesa/callback'
@@ -67,8 +81,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ConsoleRouteRouteChildren {
+  ConsoleIndexRoute: typeof ConsoleIndexRoute
+}
+
+const ConsoleRouteRouteChildren: ConsoleRouteRouteChildren = {
+  ConsoleIndexRoute: ConsoleIndexRoute,
+}
+
+const ConsoleRouteRouteWithChildren = ConsoleRouteRoute._addFileChildren(
+  ConsoleRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  ConsoleRouteRoute: ConsoleRouteRoute,
+  ConsoleRouteRoute: ConsoleRouteRouteWithChildren,
   ApiPublicMpesaCallbackRoute: ApiPublicMpesaCallbackRoute,
 }
 export const routeTree = rootRouteImport
